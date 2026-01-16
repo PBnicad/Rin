@@ -25,19 +25,14 @@ export function CommentService() {
                             user: {
                                 columns: { id: true, username: true, avatar: true, permission: true }
                             },
-                            parent: {
-                                columns: { id: true },
-                                with: {
-                                    user: {
-                                        columns: { id: true, username: true }
-                                    }
-                                }
+                            replyToUser: {
+                                columns: { id: true, username: true }
                             }
                         },
                         orderBy: [desc(comments.createdAt)]
                     });
 
-                    // Build nested structure with replyToUser info
+                    // Build nested structure
                     const rootComments: any[] = [];
                     const replyMap = new Map();
 
@@ -47,9 +42,6 @@ export function CommentService() {
                             if (!replyMap.has(comment.parentId)) {
                                 replyMap.set(comment.parentId, []);
                             }
-                            // Add replyToUser for replies (the user who wrote the parent comment)
-                            const parentComment = allComments.find(c => c.id === comment.parentId);
-                            (comment as any).replyToUser = parentComment?.user || null;
                             replyMap.get(comment.parentId).push(comment);
                         } else {
                             rootComments.push(comment);
@@ -66,7 +58,7 @@ export function CommentService() {
 
                     return rootComments;
                 })
-                .post('/:feed', async ({ uid, set, params: { feed }, body: { content, parentId } }) => {
+                .post('/:feed', async ({ uid, set, params: { feed }, body: { content, parentId, replyToUserId } }) => {
                     if (!uid) {
                         set.status = 401;
                         return 'Unauthorized';
@@ -88,6 +80,8 @@ export function CommentService() {
                         return 'Feed not found';
                     }
                     let finalParentId = parentId || null;
+                    let finalReplyToUserId = replyToUserId ? parseInt(replyToUserId as string) : null;
+
                     if (parentId) {
                         const parentComment = await db.query.comments.findFirst({ where: eq(comments.id, parentId) });
                         if (!parentComment || parentComment.feedId !== feedId) {
@@ -97,6 +91,13 @@ export function CommentService() {
                         // Enforce two-level nesting: if parent is already a reply, use its parent (root comment)
                         if (parentComment.parentId) {
                             finalParentId = parentComment.parentId;
+                            // If replying to a reply, use the reply's author as replyToUser
+                            if (!finalReplyToUserId) {
+                                finalReplyToUserId = parentComment.userId;
+                            }
+                        } else if (!finalReplyToUserId) {
+                            // If replying to a root comment without explicit replyToUser, use the root comment's author
+                            finalReplyToUserId = parentComment.userId;
                         }
                     }
 
@@ -104,7 +105,8 @@ export function CommentService() {
                         feedId,
                         userId,
                         content,
-                        parentId: finalParentId
+                        parentId: finalParentId,
+                        replyToUserId: finalReplyToUserId
                     });
 
                     const webhookUrl = await ServerConfig().get(Config.webhookUrl) || env.WEBHOOK_URL;
@@ -114,7 +116,8 @@ export function CommentService() {
                 }, {
                     body: t.Object({
                         content: t.String(),
-                        parentId: t.Optional(t.Union([t.String(), t.Number()]))
+                        parentId: t.Optional(t.Union([t.String(), t.Number()])),
+                        replyToUserId: t.Optional(t.Union([t.String(), t.Number()]))
                     })
                 })
         )

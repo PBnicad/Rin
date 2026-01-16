@@ -490,11 +490,13 @@ function CommentInput({
 function ReplyInput({
   feedId,
   parentId,
+  replyToUserId,
   onRefresh,
   onCancel,
 }: {
   feedId: string;
   parentId: number;
+  replyToUserId?: number;
   onRefresh: () => void;
   onCancel: () => void;
 }) {
@@ -519,7 +521,7 @@ function ReplyInput({
     client.feed
       .comment({ feed: feedId })
       .post(
-        { content, parentId },
+        { content, parentId, replyToUserId },
         {
           headers: headersWithAuth(),
         }
@@ -780,6 +782,7 @@ function CommentItem({
           <ReplyInput
             feedId={feedId}
             parentId={rootId || comment.id}
+            replyToUserId={comment.user.id}
             onRefresh={() => {
               onRefresh();
               setShowReplyInput(false);
@@ -934,6 +937,7 @@ function ReplyItem({
           <ReplyInput
             feedId={feedId}
             parentId={rootId}
+            replyToUserId={reply.user.id}
             onRefresh={() => {
               onRefresh();
               setShowReplyInput(false);
