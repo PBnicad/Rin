@@ -56,9 +56,12 @@ export function CommentService() {
                         }
                     }
 
-                    // Attach replies to their parents
+                    // Attach replies to their parents and sort by createdAt ascending (older first)
                     for (const root of rootComments) {
-                        (root as any).replies = replyMap.get(root.id) || [];
+                        const replies = replyMap.get(root.id) || [];
+                        // Sort replies by createdAt ascending (older first)
+                        replies.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                        (root as any).replies = replies;
                     }
 
                     return rootComments;
