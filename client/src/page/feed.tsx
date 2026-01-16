@@ -531,10 +531,9 @@ function ReplyInput({
         } else {
           setContent("");
           setError("");
-          showAlert(t("comment.success"), () => {
-            onRefresh();
-            setSubmitting(false);
-          });
+          onRefresh();
+          setSubmitting(false);
+          showAlert(t("comment.success"));
         }
       });
   }
