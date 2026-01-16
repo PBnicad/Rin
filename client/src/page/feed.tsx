@@ -669,14 +669,12 @@ function CommentItem({
   onRefresh,
   rootId,
   index,
-  replyPrefix = '',
 }: {
   comment: Comment;
   feedId: string;
   onRefresh: () => void;
   rootId?: number;
   index?: number;
-  replyPrefix?: string;
 }) {
   const { showConfirm, ConfirmUI } = useConfirm();
   const { showAlert, AlertUI } = useAlert();
