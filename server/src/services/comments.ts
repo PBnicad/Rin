@@ -60,7 +60,7 @@ export function CommentService() {
                     for (const root of rootComments) {
                         const replies = replyMap.get(root.id) || [];
                         // Sort replies by createdAt ascending (older first)
-                        replies.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                        replies.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
                         (root as any).replies = replies;
                     }
 
