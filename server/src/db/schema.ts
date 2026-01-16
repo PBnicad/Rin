@@ -68,9 +68,10 @@ export const comments = sqliteTable("comments", {
     feedId: integer("feed_id").references(() => feeds.id, { onDelete: 'cascade' }).notNull(),
     userId: integer("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
     content: text("content").notNull(),
+    parentId: integer("parent_id").references(() => comments.id, { onDelete: 'cascade' }),
     createdAt: created_at,
     updatedAt: updated_at,
-});
+}) as any;
 
 export const hashtags = sqliteTable("hashtags", {
     id: integer("id").primaryKey(),
@@ -102,7 +103,7 @@ export const momentsRelations = relations(moments, ({ one }) => ({
     })
 }));
 
-export const commentsRelations = relations(comments, ({ one }) => ({
+export const commentsRelations = relations(comments, ({ one, many }) => ({
     feed: one(feeds, {
         fields: [comments.feedId],
         references: [feeds.id],
@@ -110,6 +111,14 @@ export const commentsRelations = relations(comments, ({ one }) => ({
     user: one(users, {
         fields: [comments.userId],
         references: [users.id],
+    }),
+    parent: one(comments, {
+        fields: [comments.parentId],
+        references: [comments.id],
+        relationName: 'comment_replies'
+    }),
+    replies: many(comments, {
+        relationName: 'comment_replies'
     }),
 }));
 
