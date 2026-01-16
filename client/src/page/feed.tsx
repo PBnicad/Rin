@@ -725,16 +725,16 @@ function CommentItem({
           className="w-8 h-8 rounded-full mt-4"
         />
         <div className="flex flex-col flex-1 w-0 ml-2 bg-w rounded-xl p-4">
-          {index !== undefined && (
-            <span className="text-xs text-gray-400 mb-1">
-              #{index + 1}
-            </span>
-          )}
           <div className="flex flex-row">
             <span className="t-primary text-base font-bold">
               {comment.user.username}
             </span>
             <div className="flex-1 w-0" />
+            {index !== undefined && (
+              <span className="text-xs text-gray-400 mr-2">
+                #{index + 1}
+              </span>
+            )}
             <span
               title={new Date(comment.createdAt).toLocaleString()}
               className="text-gray-400 text-sm"
@@ -874,16 +874,16 @@ function ReplyItem({
           className="w-6 h-6 rounded-full mt-2"
         />
         <div className="flex flex-col flex-1 w-0 ml-2 bg-w rounded-xl p-4">
-          {index !== undefined && (
-            <span className="text-xs text-gray-400 mb-1">
-              #{replyPrefix}{index + 1}
-            </span>
-          )}
           <div className="flex flex-row">
             <span className="t-primary text-base font-bold">
               {reply.user.username}
             </span>
             <div className="flex-1 w-0" />
+            {index !== undefined && (
+              <span className="text-xs text-gray-400 mr-2">
+                #{replyPrefix}{index + 1}
+              </span>
+            )}
             <span
               title={new Date(reply.createdAt).toLocaleString()}
               className="text-gray-400 text-sm"
