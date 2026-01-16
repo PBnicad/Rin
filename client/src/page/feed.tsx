@@ -646,12 +646,13 @@ function Comments({ id }: { id: string }) {
           )}
           {comments.length > 0 && (
             <div className="w-full">
-              {comments.map((comment) => (
+              {comments.map((comment, index) => (
                 <CommentItem
                   key={comment.id}
                   comment={comment}
                   feedId={id}
                   onRefresh={loadComments}
+                  index={index}
                 />
               ))}
             </div>
@@ -667,11 +668,13 @@ function CommentItem({
   feedId,
   onRefresh,
   rootId,
+  index,
 }: {
   comment: Comment;
   feedId: string;
   onRefresh: () => void;
   rootId?: number;
+  index?: number;
 }) {
   const { showConfirm, ConfirmUI } = useConfirm();
   const { showAlert, AlertUI } = useAlert();
@@ -722,6 +725,11 @@ function CommentItem({
           className="w-8 h-8 rounded-full mt-4"
         />
         <div className="flex flex-col flex-1 w-0 ml-2 bg-w rounded-xl p-4">
+          {index !== undefined && (
+            <span className="text-xs text-gray-400 mb-1">
+              #{index + 1}
+            </span>
+          )}
           <div className="flex flex-row">
             <span className="t-primary text-base font-bold">
               {comment.user.username}
@@ -783,13 +791,15 @@ function CommentItem({
       )}
       {comment.replies && comment.replies.length > 0 && (
         <div className="ml-10 mt-2 space-y-2">
-          {comment.replies.map((reply) => (
+          {comment.replies.map((reply, replyIndex) => (
             <ReplyItem
               key={reply.id}
               reply={reply}
               feedId={feedId}
               rootId={comment.id}
               onRefresh={onRefresh}
+              index={replyIndex}
+              replyPrefix={index !== undefined ? `${index + 1}-` : ''}
             />
           ))}
         </div>
@@ -803,11 +813,15 @@ function ReplyItem({
   feedId,
   rootId,
   onRefresh,
+  index,
+  replyPrefix = '',
 }: {
   reply: Comment;
   feedId: string;
   rootId: number;
   onRefresh: () => void;
+  index?: number;
+  replyPrefix?: string;
 }) {
   const { showConfirm, ConfirmUI } = useConfirm();
   const { showAlert, AlertUI } = useAlert();
@@ -860,6 +874,11 @@ function ReplyItem({
           className="w-6 h-6 rounded-full mt-2"
         />
         <div className="flex flex-col flex-1 w-0 ml-2 bg-w rounded-xl p-4">
+          {index !== undefined && (
+            <span className="text-xs text-gray-400 mb-1">
+              #{replyPrefix}{index + 1}
+            </span>
+          )}
           <div className="flex flex-row">
             <span className="t-primary text-base font-bold">
               {reply.user.username}
